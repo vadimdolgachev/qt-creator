@@ -373,6 +373,7 @@ public:
     enum class ShowEditor { OnlyIfDifferent, Always };
     Core::IEditor *openShowEditor(const Utils::FilePath &workingDirectory, const QString &ref,
                                   const QString &path, ShowEditor showSetting = ShowEditor::Always);
+    void requestFileChanges(const Utils::FilePath &workingDirectory, const QString &fileName);
 
 private:
     void finishSubmoduleUpdate();

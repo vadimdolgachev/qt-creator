@@ -565,6 +565,9 @@ void VcsBasePluginPrivate::slotStateChanged(const Internal::State &newInternalSt
             updateActions(VcsEnabled);
             ICore::addAdditionalContext(m_context);
         }
+        if (!m_state.currentFile().isEmpty()) {
+            requestFileChanges(m_state.currentFileDirectory(), m_state.currentFile());
+        }
     } else {
         // Some other VCS plugin or state changed: Reset us to empty state.
         const ActionState newActionState = vc ? OtherVcsEnabled : NoVcsEnabled;

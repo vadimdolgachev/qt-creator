@@ -336,6 +336,12 @@ public:
     void updateContinueAndAbortCommands();
     void delayedPushToGerrit();
 
+    void requestFileChanges(const Utils::FilePath &workingDirectory, const QString &fileName) override {
+        qWarning() << Q_FUNC_INFO << fileName;
+
+        m_gitClient.requestFileChanges(workingDirectory, fileName);
+    }
+    
     Core::Command *createCommand(QAction *action, Core::ActionContainer *ac, Utils::Id id,
                                  const Core::Context &context, bool addToLocator,
                                  const std::function<void()> &callback, const QKeySequence &keys);

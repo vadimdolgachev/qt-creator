@@ -457,6 +457,8 @@ bool startCrashpad(const QString &libexecPath, bool crashReportingEnabled)
 
 int main(int argc, char **argv)
 {
+    qputenv("QT_ASSUME_STDERR_HAS_CONSOLE", "1");
+
     Restarter restarter(argc, argv);
     Utils::Environment::systemEnvironment(); // cache system environment before we do any changes
 

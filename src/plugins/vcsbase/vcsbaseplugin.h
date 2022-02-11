@@ -195,6 +195,8 @@ protected:
     // Returns whether actions should be set up further.
     bool enableMenuAction(ActionState as, QAction *in) const;
 
+    virtual void requestFileChanges(const Utils::FilePath &workingDirectory, const QString &fileName) {}
+    
 private:
     void slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result);
     void slotStateChanged(const Internal::State &s, Core::IVersionControl *vc);

@@ -66,6 +66,7 @@
 #include <diffeditor/diffeditorconstants.h>
 #include <diffeditor/diffeditorcontroller.h>
 #include <diffeditor/diffutils.h>
+#include <utils/runextensions.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
@@ -3865,6 +3866,38 @@ IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QStri
     editor->document()->setTemporary(true);
     VcsBase::setSource(editor->document(), path);
     return editor;
+}
+
+static void readPatch(QFutureInterface<QList<FileData>> &futureInterface,
+                      const QString &patch)
+{
+    bool ok;
+    const QList<FileData> &fileDataList = DiffUtils::readPatch(patch, &ok, &futureInterface);
+    futureInterface.reportResult(fileDataList);
+}
+
+
+void GitClient::requestFileChanges(const FilePath &workingDirectory, const QString &fileName)
+{
+    qWarning() << Q_FUNC_INFO << workingDirectory << " " << fileName;
+    VcsCommand *command = vcsExec(workingDirectory, {"diff", "--color=never", "--unified=0", fileName}, nullptr, false);
+    connect(command, &VcsCommand::stdOutText, this,
+            [this] (const QString &output){
+            auto processWatcher = new QFutureWatcher<QList<FileData>>();            
+            QObject::connect(processWatcher, &QFutureWatcher<QList<FileData>>::finished,
+                             [this, processWatcher] () {
+                               const bool success = !processWatcher->future().isCanceled();
+                               const auto fileDataList = success 
+                                       ? processWatcher->future().result() : QList<FileData>();
+                               processWatcher->deleteLater();
+                               for (const FileData &fd : fileDataList) {
+                                   qWarning() << fd.chunks.size();
+                               }
+                              } );
+            processWatcher->setFuture(Utils::runAsync(&readPatch, output));
+    }, Qt::QueuedConnection);
+    
+
 }
 
 } // namespace Internal
